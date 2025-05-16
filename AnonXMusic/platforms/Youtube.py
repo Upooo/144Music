@@ -249,6 +249,7 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
+                'cookiefile': 'cookies.txt',
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -266,6 +267,7 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
+                'cookiefile': 'cookies.txt',
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -287,6 +289,7 @@ class YouTubeAPI:
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
                 "merge_output_format": "mp4",
+                'cookiefile': 'cookies.txt',
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             x.download([link])
@@ -308,6 +311,7 @@ class YouTubeAPI:
                         "preferredquality": "192",
                     }
                 ],
+                'cookiefile': 'cookies.txt',
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             x.download([link])
