@@ -11,6 +11,7 @@ from youtubesearchpython.__future__ import VideosSearch
 from AnonXMusic.utils.database import is_on_off
 from AnonXMusic.utils.formatters import time_to_seconds
 
+cook = "youtube_cookies.txt"
 
 async def shell_cmd(cmd):
     proc = await asyncio.create_subprocess_shell(
@@ -249,7 +250,7 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
-                'cookiefile': 'cookies.txt',
+                'cookiefile': cook,
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -267,7 +268,8 @@ class YouTubeAPI:
                 "nocheckcertificate": True,
                 "quiet": True,
                 "no_warnings": True,
-                'cookiefile': 'cookies.txt',
+                'cookiefile': cook,
+                
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -288,8 +290,8 @@ class YouTubeAPI:
                 "quiet": True,
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
+                'cookiefile': cook,
                 "merge_output_format": "mp4",
-                'cookiefile': 'cookies.txt',
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             x.download([link])
@@ -302,6 +304,7 @@ class YouTubeAPI:
                 "geo_bypass": True,
                 "nocheckcertificate": True,
                 "quiet": True,
+                'cookiefile': cook,
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
                 "postprocessors": [
@@ -311,7 +314,6 @@ class YouTubeAPI:
                         "preferredquality": "192",
                     }
                 ],
-                'cookiefile': 'cookies.txt',
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             x.download([link])
