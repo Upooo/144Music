@@ -249,8 +249,8 @@ class YouTubeAPI:
                 "geo_bypass": True,
                 "nocheckcertificate": True,
                 "quiet": True,
-                "no_warnings": True,
                 'cookiefile': cook,
+                "no_warnings": True,
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
@@ -267,8 +267,8 @@ class YouTubeAPI:
                 "geo_bypass": True,
                 "nocheckcertificate": True,
                 "quiet": True,
-                "no_warnings": True,
                 'cookiefile': cook,
+                "no_warnings": True,
                 
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
@@ -288,9 +288,9 @@ class YouTubeAPI:
                 "geo_bypass": True,
                 "nocheckcertificate": True,
                 "quiet": True,
+                'cookiefile': cook,
                 "no_warnings": True,
                 "prefer_ffmpeg": True,
-                'cookiefile': cook,
                 "merge_output_format": "mp4",
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
