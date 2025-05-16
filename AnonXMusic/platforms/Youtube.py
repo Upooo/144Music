@@ -153,25 +153,33 @@ class YouTubeAPI:
         return result
 
     async def track(self, link: str, videoid: Union[bool, str] = None):
-        if videoid:
-            link = self.base + link
-        if "&" in link:
-            link = link.split("&")[0]
-        results = VideosSearch(link, limit=1)
-        for result in (await results.next())["result"]:
+        try:
+            if videoid:
+                link = self.base + link
+            if "&" in link:
+                link = link.split("&")[0]
+            results = VideosSearch(link, limit=1)
+            res = await results.next()
+            if "result" not in res or not res["result"]:
+                raise ValueError("Tidak ada hasil video ditemukan.")
+            result = res["result"][0]
             title = result["title"]
             duration_min = result["duration"]
             vidid = result["id"]
             yturl = result["link"]
             thumbnail = result["thumbnails"][0]["url"].split("?")[0]
-        track_details = {
-            "title": title,
-            "link": yturl,
-            "vidid": vidid,
-            "duration_min": duration_min,
-            "thumb": thumbnail,
-        }
-        return track_details, vidid
+            track_details = {
+                "title": title,
+                "link": yturl,
+                "vidid": vidid,
+                "duration_min": duration_min,
+                "thumb": thumbnail,
+            }
+            return track_details, vidid
+        except Exception as e:
+            print(f"Error pada fungsi track: {e}")
+            return None, None
+
 
     async def formats(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
