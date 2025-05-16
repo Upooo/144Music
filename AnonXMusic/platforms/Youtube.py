@@ -274,9 +274,10 @@ class YouTubeAPI:
             info = x.extract_info(link, False)
             xyz = os.path.join("downloads", f"{info['id']}.{info['ext']}")
             if os.path.exists(xyz):
-                return xyz
+                return xyz, True  # Tambahkan 'True' sebagai direct
             x.download([link])
-            return xyz
+            return xyz, True
+
 
         def song_video_dl():
             formats = f"{format_id}+140"
