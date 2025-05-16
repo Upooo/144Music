@@ -269,7 +269,6 @@ class YouTubeAPI:
                 "quiet": True,
                 'cookiefile': cook,
                 "no_warnings": True,
-                
             }
             x = yt_dlp.YoutubeDL(ydl_optssx)
             info = x.extract_info(link, False)
