@@ -140,15 +140,13 @@ async def stream(
         try:
             result = await YouTube.download(vidid, mystic, videoid=True, video=status)
             if not result:
-                # Kalau None atau False, anggap gagal
+                print("[ERROR] Download result None, track details gagal diambil.")
                 raise AssistantErr(_["play_14"])
             file_path, direct = result
         except Exception as e:
-            # Di sini kamu bisa log error atau langsung raise pesan error custom
+            print(f"[ERROR] Exception di download: {e}")
             raise AssistantErr(_["play_14"])
 
-            print(f"ERROR in YouTube.download(): {e}")
-            raise AssistantErr(_["play_14"])
         if await is_active_chat(chat_id):
             await put_queue(
                 chat_id,
