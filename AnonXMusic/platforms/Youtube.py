@@ -237,7 +237,7 @@ class YouTubeAPI:
         songvideo: Union[bool, str] = None,
         format_id: Union[bool, str] = None,
         title: Union[bool, str] = None,
-    ) -> str:
+    ) -> Union[tuple[str, bool], None]:
         if videoid:
             link = self.base + link
         loop = asyncio.get_running_loop()
@@ -274,14 +274,13 @@ class YouTubeAPI:
             info = x.extract_info(link, False)
             xyz = os.path.join("downloads", f"{info['id']}.{info['ext']}")
             if os.path.exists(xyz):
-                return xyz, True  # Tambahkan 'True' sebagai direct
+                return xyz
             x.download([link])
-            return xyz, True
-
+            return xyz
 
         def song_video_dl():
             formats = f"{format_id}+140"
-            fpath = f"downloads/{title}"
+            fpath = f"downloads/{title}.mp4"
             ydl_optssx = {
                 "format": formats,
                 "outtmpl": fpath,
@@ -297,7 +296,7 @@ class YouTubeAPI:
             x.download([link])
 
         def song_audio_dl():
-            fpath = f"downloads/{title}.%(ext)s"
+            fpath = f"downloads/{title}.mp3"
             ydl_optssx = {
                 "format": format_id,
                 "outtmpl": fpath,
@@ -321,32 +320,33 @@ class YouTubeAPI:
         if songvideo:
             await loop.run_in_executor(None, song_video_dl)
             fpath = f"downloads/{title}.mp4"
-            return fpath
+            return fpath, True
         elif songaudio:
             await loop.run_in_executor(None, song_audio_dl)
             fpath = f"downloads/{title}.mp3"
-            return fpath
+            return fpath, True
         elif video:
             if await is_on_off(1):
-                direct = True
                 downloaded_file = await loop.run_in_executor(None, video_dl)
+                direct = True
             else:
                 proc = await asyncio.create_subprocess_exec(
                     "yt-dlp",
                     "-g",
                     "-f",
                     "best[height<=?720][width<=?1280]",
-                    f"{link}",
+                    link,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
                 )
                 stdout, stderr = await proc.communicate()
                 if stdout:
                     downloaded_file = stdout.decode().split("\n")[0]
-                    direct = None
+                    direct = False
                 else:
-                    return
+                    return None
+            return downloaded_file, direct
         else:
-            direct = True
             downloaded_file = await loop.run_in_executor(None, audio_dl)
-        return downloaded_file, direct
+            direct = True
+            return downloaded_file, direct
