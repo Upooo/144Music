@@ -138,10 +138,15 @@ async def stream(
         thumbnail = result["thumb"]
         status = True if video else None
         try:
-            file_path, direct = await YouTube.download(
-                vidid, mystic, videoid=True, video=status
-            )
+            result = await YouTube.download(vidid, mystic, videoid=True, video=status)
+            if not result:
+                # Kalau None atau False, anggap gagal
+                raise AssistantErr(_["play_14"])
+            file_path, direct = result
         except Exception as e:
+            # Di sini kamu bisa log error atau langsung raise pesan error custom
+            raise AssistantErr(_["play_14"])
+
             print(f"ERROR in YouTube.download(): {e}")
             raise AssistantErr(_["play_14"])
         if await is_active_chat(chat_id):
