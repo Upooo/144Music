@@ -83,14 +83,18 @@ async def play_commnd(
                 _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
             )
         file_path = await Telegram.get_filepath(audio=audio_telegram)
+
         if await Telegram.download(_, message, mystic, file_path):
-            # Cek dan tunggu sampai file benar-benar tersimpan (maks 5 detik)
-            for _ in range(10):  # cek 10x dengan jeda 0.5 detik (maks 5 detik)
+            print(f"[DEBUG] File path setelah download: {file_path}")
+
+            # Pastikan file ada dan memiliki ukuran
+            for i in range(10):
                 if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                    print(f"[DEBUG] File ditemukan: {file_path}")
                     break
                 await asyncio.sleep(0.5)
             else:
-                return await mystic.edit_text("❌ Gagal menemukan file setelah download meski dikatakan berhasil.")
+                return await mystic.edit_text(f"❌ File tidak ditemukan setelah download:\n`{file_path}`")
 
             try:
                 message_link = await Telegram.get_link(message)
@@ -98,6 +102,8 @@ async def play_commnd(
 
                 try:
                     dur = await Telegram.get_duration(audio_telegram, file_path)
+                except FileNotFoundError:
+                    return await mystic.edit_text(f"❌ File tidak ditemukan saat mencoba mengambil durasi:\n`{file_path}`")
                 except Exception as e:
                     return await mystic.edit_text(f"❌ Gagal membaca durasi file: {e}")
 
@@ -130,7 +136,8 @@ async def play_commnd(
             except Exception as e:
                 return await mystic.edit_text(f"❌ Terjadi kesalahan saat memproses file: {e}")
 
-        return await mystic.edit_text("❌ Gagal mengunduh file dari Telegram.")
+        else:
+            return await mystic.edit_text("❌ Download gagal. File tidak bisa disimpan.")
     elif video_telegram:
         if message.reply_to_message.document:
             try:
