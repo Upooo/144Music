@@ -1,3 +1,4 @@
+import os
 import random
 import string
 
@@ -81,10 +82,23 @@ async def play_commnd(
                 _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
             )
         file_path = await Telegram.get_filepath(audio=audio_telegram)
+
+# Coba download file terlebih dahulu
         if await Telegram.download(_, message, mystic, file_path):
+            # Pastikan file benar-benar ada
+            if not os.path.exists(file_path):
+                await mystic.edit_text("❌ File tidak ditemukan setelah proses download.")
+                return
+
             message_link = await Telegram.get_link(message)
             file_name = await Telegram.get_filename(audio_telegram, audio=True)
-            dur = await Telegram.get_duration(audio_telegram, file_path)
+
+            try:
+                dur = await Telegram.get_duration(audio_telegram, file_path)
+            except Exception as e:
+                await mystic.edit_text(f"❌ Gagal mendapatkan durasi file: {e}")
+                return
+
             details = {
                 "title": file_name,
                 "link": message_link,
@@ -108,8 +122,13 @@ async def play_commnd(
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 return await mystic.edit_text(err)
+
             return await mystic.delete()
+
+        # Jika gagal download
+        await mystic.edit_text("❌ Gagal mendownload file dari Telegram.")
         return
+
     elif video_telegram:
         if message.reply_to_message.document:
             try:
