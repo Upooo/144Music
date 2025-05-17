@@ -82,52 +82,51 @@ async def play_commnd(
                 _["play_6"].format(config.DURATION_LIMIT_MIN, app.mention)
             )
         file_path = await Telegram.get_filepath(audio=audio_telegram)
-
-# Coba download file terlebih dahulu
         if await Telegram.download(_, message, mystic, file_path):
-            # Pastikan file benar-benar ada
+            # Pastikan file benar-benar ada setelah proses download
             if not os.path.exists(file_path):
-                await mystic.edit_text("❌ File tidak ditemukan setelah proses download.")
-                return
-
-            message_link = await Telegram.get_link(message)
-            file_name = await Telegram.get_filename(audio_telegram, audio=True)
+                return await mystic.edit_text("❌ Gagal menemukan file setelah download.")
 
             try:
-                dur = await Telegram.get_duration(audio_telegram, file_path)
+                message_link = await Telegram.get_link(message)
+                file_name = await Telegram.get_filename(audio_telegram, audio=True)
+
+                # Dapatkan durasi file, tangkap kemungkinan error
+                try:
+                    dur = await Telegram.get_duration(audio_telegram, file_path)
+                except Exception as e:
+                    return await mystic.edit_text(f"❌ Gagal membaca durasi file: {e}")
+
+                details = {
+                    "title": file_name,
+                    "link": message_link,
+                    "path": file_path,
+                    "dur": dur,
+                }
+
+                try:
+                    await stream(
+                        _,
+                        mystic,
+                        user_id,
+                        details,
+                        chat_id,
+                        user_name,
+                        message.chat.id,
+                        streamtype="telegram",
+                        forceplay=fplay,
+                    )
+                except Exception as e:
+                    ex_type = type(e).__name__
+                    err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
+                    return await mystic.edit_text(err)
+
+                return await mystic.delete()
+
             except Exception as e:
-                await mystic.edit_text(f"❌ Gagal mendapatkan durasi file: {e}")
-                return
+                return await mystic.edit_text(f"❌ Terjadi kesalahan saat memproses file: {e}")
 
-            details = {
-                "title": file_name,
-                "link": message_link,
-                "path": file_path,
-                "dur": dur,
-            }
-
-            try:
-                await stream(
-                    _,
-                    mystic,
-                    user_id,
-                    details,
-                    chat_id,
-                    user_name,
-                    message.chat.id,
-                    streamtype="telegram",
-                    forceplay=fplay,
-                )
-            except Exception as e:
-                ex_type = type(e).__name__
-                err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
-                return await mystic.edit_text(err)
-
-            return await mystic.delete()
-
-        # Jika gagal download
-        await mystic.edit_text("❌ Gagal mendownload file dari Telegram.")
-        return
+        return await mystic.edit_text("❌ Gagal mengunduh file dari Telegram.")
 
     elif video_telegram:
         if message.reply_to_message.document:
