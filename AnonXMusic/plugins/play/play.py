@@ -1,3 +1,4 @@
+import asyncio
 import os
 import random
 import string
@@ -83,15 +84,18 @@ async def play_commnd(
             )
         file_path = await Telegram.get_filepath(audio=audio_telegram)
         if await Telegram.download(_, message, mystic, file_path):
-            # Pastikan file benar-benar ada setelah proses download
-            if not os.path.exists(file_path):
-                return await mystic.edit_text("❌ Gagal menemukan file setelah download.")
+            # Cek dan tunggu sampai file benar-benar tersimpan (maks 5 detik)
+            for _ in range(10):  # cek 10x dengan jeda 0.5 detik (maks 5 detik)
+                if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                    break
+                await asyncio.sleep(0.5)
+            else:
+                return await mystic.edit_text("❌ Gagal menemukan file setelah download meski dikatakan berhasil.")
 
             try:
                 message_link = await Telegram.get_link(message)
                 file_name = await Telegram.get_filename(audio_telegram, audio=True)
 
-                # Dapatkan durasi file, tangkap kemungkinan error
                 try:
                     dur = await Telegram.get_duration(audio_telegram, file_path)
                 except Exception as e:
@@ -127,7 +131,6 @@ async def play_commnd(
                 return await mystic.edit_text(f"❌ Terjadi kesalahan saat memproses file: {e}")
 
         return await mystic.edit_text("❌ Gagal mengunduh file dari Telegram.")
-
     elif video_telegram:
         if message.reply_to_message.document:
             try:
